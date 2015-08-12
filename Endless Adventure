@@ -1,0 +1,1388 @@
+#include <iostream> // General note: The runner seems to hold about 75 characters per line.
+#include <string> // For printing out strings and stuff. Also, to_string converts numbers so strings can read.  Very useful!
+#include <stdlib.h> // I think this is for random number generation.
+#include <time.h> // Another thing for RNG, more specifically srand (time (NULL)).
+#include <cmath> // For that exponent function, wonder what this could also be used for...
+#include <conio.h> // Heard this is used for getch().
+using namespace std;
+
+void fullInput(string& userInput);
+void makeLower(string& userInput);
+
+void helpDisplay(string userInput);
+void updateLog(string UserInput);
+void playGame(string playerClass, string userInput);
+
+void levelUp(int& playerLevel, int& playerExperienceToLevelUp, int playerStats[7], double fighterAttributes[7], int equipmentBonus[7], double wellBonus[7], int helmetBonus[7],
+	int chestplateBonus[7], int leggingsBonus[7], int bootsBonus[7], int weaponBonus[7], int& playerExperience, int& playerCurrentHealth, int& playerCurrentMana);
+void viewStats(int playerLevel, int playerExperienceToLevelUp, int playerStats[7], double fighterAttributes[7], double wellBonus[7], int playerCurrentHealth, int playerCurrentMana, int playerExperience,
+	int goldAmount);
+void statsChanged(int& playerLevel, int& playerExperienceToLevelUp, int playerStats[7], double fighterAttributes[7], int equipmentBonus[7], double wellBonus[7], int helmetBonus[7],
+	int chestplateBonus[7], int leggingsBonus[7], int bootsBonus[7], int weaponBonus[7]);
+
+void enemySpawnAndFight(string userInput, int playerStats[7], int& healthPotions, int& manaPotions, int playerSquare, int& playerCurrentHealth, int& playerCurrentMana,
+	int& playerExperience, int& playerExperienceToLevelUp, int& goldAmount, int& tooManyEnemies);
+void warlockAI(string& enemyAttackDetail, double& enemyAttackPowerModifier, double& enemyAttackChance, int& enemyCurrentMana, bool& physicalOrMagic);
+void ghostAI(string& enemyAttackDetail, double& enemyAttackPowerModifier, double& enemyAttackChance, int& enemyCurrentMana, bool& physicalOrMagic);
+void bearAI(string& enemyAttackDetail, double& enemyAttackPowerModifier, double& enemyAttackChance, bool& physicalOrMagic);
+void goblinAI(string& enemyAttackDetail, double& enemyAttackPowerModifier, double& enemyAttackChance, bool& physicalOrMagic);
+
+void landmarkIsGeneralStore(string userInput, int& goldAmount, int& healthPotions, int& manaPotions, int playerSquare, int& tooManyEnemies);
+void landmarkIsInn(string userInput, int playerStats[7], int& playerCurrentHealth, int& playerCurrentMana, int& goldAmount, int playerSquare, int& tooManyEnemies, int playerLevel,
+	int playerExperienceToLevelUp, double fighterAttributes[7], double wellBonus[7], int playerExperience);
+void landmarkIsArmory(int& tooManyEnemies, string userInput, string& equippedHelmet, int helmetBonus[7], string& equippedChestplate, int chestplateBonus[7], string& equippedLeggings, int leggingsBonus[7],
+	string& equippedBoots, int bootsBonus[7], string& equippedWeapon, int weaponBonus[7], int playerStats[7], double fighterAttributes[7], double wellBonus[7], int& playerCurrentHealth,
+	int& playerCurrentMana, int& goldAmount, int playerSquare, int playerLevel, int playerExperienceToLevelUp, int equipmentBonus[7], int playerExperience);
+void landmarkIsWell(int& tooManyEnemies, string userInput, int& playerLevel, int& playerExperienceToLevelUp, int playerStats[7], double fighterAttributes[7], int equipmentBonus[7], double wellBonus[7],
+	int helmetBonus[7], int chestplateBonus[7], int leggingsBonus[7], int bootsBonus[7], int weaponBonus[7], int& playerCurrentHealth, int& playerCurrentMana, int& goldAmount, int playerSquare,
+	int playerExperience, int wellLevel[7]);
+
+void updateLog(string userInput){ // Record updates here.
+	while (true){
+		cout << endl << "Which update would you like to see?" << endl
+			<< "[1: Planned Upcoming Features]" << endl
+			<< "[2: v0.3]" << endl
+			<< "[3: v0.2.1]" << endl
+			<< "[4: v0.2]" << endl
+			<< "[5: v0.1.1]" << endl
+			<< "[6: v0.1]" << endl
+			<< "[7: Menu]" << endl;
+		while (true){
+			fullInput(userInput);
+			if (userInput == "planned upcoming features" || userInput == "1"){
+				cout << endl << "Planned upcomming features:" << endl
+					<< "Bosses! (I have been seriously lazy with this.)" << endl
+					<< "Zones for different types of enemies? (Later priority, also would take time.)" << endl
+					<< "Naming your hero (And perhaps giving it a gender)." << endl
+					<< "Making your hero have varieties of an attack." << endl
+					<< "Inventories for items you get, as well as monsters dropping loot." << endl
+					<< "Making spells cost a lot more as you level up." << endl;
+				getch();
+				break;
+			}
+			else if (userInput == "v0.3" || userInput == "2"){
+				cout << endl << "v0.3: The \"Canceled\" Update (8/12/15) (Current Version)" << endl
+					<< "Named the Cancel Update because I wanted these features implemented in v0.1." << endl
+					<< "Added Armories." << endl
+					<< "Added Equipment." << endl
+					<< "Added Wells." << endl
+					<< "Balanced classes and monsters." << endl
+					<< "All stats will now exponentially increase." << endl
+					<< "Fixed a bug causing potions to not be consumed after use." << endl
+					<< "From now on, the updates will come in bigger pieces." << endl
+					<< "Expect v0.3.1 to have bosses added, as well as a few new enemies." << endl;
+				getch();
+				break;
+			}
+			else if (userInput == "v0.2.1" || userInput == "3"){
+				cout << endl << "v0.2.1: The Whoops Update (7/20/15) (Current Version)" << endl
+					<< "Actually made damage randomized, fixed the randomization equation." << endl
+					<< "Fixed a bug preventing enemy heavy attacks from working." << endl
+					<< "Changed the ghost attributes a bit." << endl;
+				getch();
+				break;
+			}
+			else if (userInput == "v0.2" || userInput == "4"){
+				cout << endl << "v0.2: The Bug Basher Update (7/20/15)" << endl
+					<< "I was wrong, v0.1.1 was seriously bugged!" << endl
+					<< "Fixed a bug causing the hero to keep receiving 1 damage." << endl
+					<< "Fixed a bug causing light and heavy attack chances to be switched." << endl
+					<< "Fixed a bug causing a 1% chance for a landmark to be in the first square." << endl
+					<< "Fixed a bug causing mana potions to be free." << endl
+					<< "Fixed a bug causing player speed to not appear on stats." << endl
+					<< "Fixed a bug causing the attack chances to be weird." << endl
+					<< "Fixed the weird update log menu." << endl
+					<< "Fixed some missing and misplaced getch() functions." << endl
+					<< "Made the code a bit more efficient with space (related to cout)." << endl
+					<< "Dated the updates" << endl
+					<< "Actions are now numbered; now you can select them with ease!" << endl
+					<< "Your hero can now miss!" << endl
+					<< "Did some balancing with the heroes and monsters." << endl
+					<< "Damage is now randomized a bit for variety." << endl;
+				getch();
+				break;
+			}
+			else if (userInput == "v0.1.1" || userInput == "5"){
+				cout << endl << "v0.1.1: The Input Update (7/18/15)" << endl
+					<< "Renamed some variables so that they would be stated clearly (For me)." << endl
+					<< "Figured out how to use getch()." << endl
+					<< "Now when you need to input an action, there will be a \">\" symbol." << endl
+					<< "To continue dialogue, just press any key." << endl
+					<< "This version should be as bug-free as v0.1." << endl;
+				getch();
+				break;
+			}
+			else if (userInput == "v0.1" || userInput == "6"){
+				cout << endl << "v0.1: Initial Release (7/17/15)" << endl
+					<< "Menus created." << endl
+					<< "Random event generation created." << endl
+					<< "4 enemies with their AIs created, as well as a battle feature." << endl
+					<< "Inns and general stores added." << endl
+					<< "Basic stats generated." << endl;
+				getch();
+				break;
+			}
+			else if (userInput == "menu" || userInput == "7"){
+				return;
+			}
+			else{
+				cout << endl << "Invalid selection." << endl;
+			}
+		}
+	}
+}
+
+void creditsDisplay(){
+	cout << endl << "Main Developer: BDWSSBB" << endl
+		<< "v0.1 Debugger: Mic Check" << endl;
+	getch();
+	return;
+}
+
+void helpDisplay(string userInput){ // Help menu.
+	cout << endl << "You are a fighter in an endless adventure! Defeat as many monsters as possible." << endl
+		<< "Level up and progress! Stop by shops and other landmarks!" << endl;
+	getch();
+	while (true){
+		cout << endl << "Would you like any explanation of anything?" << endl
+			<< "[1: Stats]" << endl
+			<< "[2: Enemies]" << endl
+			<< "[3: Landmarks]" << endl
+			<< "[4: Menu]" << endl;
+		while (true){
+			fullInput(userInput);
+			if (userInput == "stats" || userInput == "1"){ // Individual stat explanation.
+				cout << endl << "Health: How much damage your fighter can take. When it reaches 0, you die!" << endl
+					<< "Mana: Fuel to use magical attacks. When it reaches 0, you can't cast spells!" << endl
+					<< "Attack: How much damage your fighter deals. It is reduced by enemy defense." << endl
+					<< "Defense: How much damage you can resist. Does not reduce magic attack." << endl
+					<< "Magic Attack: Apart from attack, magic attack pierces through defense." << endl
+					<< "Magic Defense: Reduces magic attack instead of physical attack." << endl
+					<< "Speed: How much you can dodge, as well as deciding who attacks first." << endl
+					<< "Experience: You gain experience from defeating monsters. Get enough to level up!" << endl;
+				getch();
+				break;
+			}
+			else if (userInput == "enemies" || userInput == "2"){ // Brief enemy explanation.
+				cout << endl << "You will keep fighting random enemies. Defeat the enemy to proceed." << endl
+					<< "You will always proceed in squares. Each square has a new enemy or landmark." << endl;
+				getch();
+				break;
+			}
+			else if (userInput == "landmarks" || userInput == "3"){ // Landmark explanation.
+				cout << endl << "There will always be a chance that the next square you go to has a landmark." << endl
+					<< "Landmarks are safe areas for your fighter to rest or gear up." << endl
+					<< "Some example of landmarks are general stores and inns." << endl;
+				getch();
+				break;
+			}
+			else if (userInput == "menu" || userInput == "4"){ // Return to menu.
+				return;
+			}
+			else{
+				cout << endl << "Invalid selection." << endl;
+			}
+		}
+	}
+}
+
+void startGame(string userInput){ // Classes of fighters are selected here. This function also proceeds to the actual game.
+	while (true){
+		string playerClass = userInput; // This is saved for the game if the player proceeds and is to explain each class if the user chooses so.
+		cout << endl << "Select a class." << endl
+			<< "[1: Warrior]" << endl
+			<< "[2: Mage]" << endl
+			<< "[3: Thief]" << endl
+			<< "[4: Menu]" << endl;
+		while (true){
+			fullInput(userInput);
+			if (userInput == "warrior" || userInput == "1"){
+				cout << endl << "The warrior specializes in physical damage, using brute strength to kill." << endl;
+				playerClass = "warrior";
+				break;
+			}
+			else if (userInput == "mage" || userInput == "2"){
+				cout << endl << "The mage uses magical abilities to aid in battle." << endl;
+				playerClass = "mage";
+				break;
+			}
+			else if (userInput == "thief" || userInput == "3"){
+				cout << endl << "The thief is fast and agile, usually able to gain the first strike." << endl;
+				playerClass = "thief";
+				break;
+			}
+			else if (userInput == "menu" || userInput == "4"){
+				return;
+			}
+			else{
+				cout << endl << "Invalid selection." << endl;
+				continue;
+			}
+		}
+		while (true){
+			cout << endl << "Would you like to play this class?" << endl
+				<< "[1: Yes]" << endl
+				<< "[2: No]" << endl
+				<< "[3: More info]" << endl;
+			while (true){
+				fullInput(userInput);
+				if (userInput == "yes" || userInput == "1"){ // Start the game!
+					playGame(playerClass, userInput);
+					return; // Return to the main menu when the player dies.
+				}
+				else if (userInput == "no" || userInput == "2"){
+					break;
+				}
+				else if (userInput == "more info" || userInput == "3"){
+					if (playerClass == "warrior"){
+						cout << endl << "Health: 1.5x" << endl
+							<< "Mana: 0.5x" << endl
+							<< "Attack: 1.5x" << endl
+							<< "Defense: 1.2x" << endl
+							<< "Magic Attack: 0.8x" << endl
+							<< "Magic Defense: 0.8x" << endl
+							<< "Speed: 1.0x" << endl;
+					}
+					else if (playerClass == "mage"){
+						cout << endl << "Health: 0.8x" << endl
+							<< "Mana: 2.0x" << endl
+							<< "Attack: 0.8x" << endl
+							<< "Defense: 1.0x" << endl
+							<< "Magic Attack: 1.5x" << endl
+							<< "Magic Defense: 1.2x" << endl
+							<< "Speed: 1.0x" << endl;
+					}
+					else{
+						cout << endl << "Health: 1.0x" << endl
+							<< "Mana: 1.0x" << endl
+							<< "Attack: 1.2x" << endl
+							<< "Defense: 1.0x" << endl
+							<< "Magic Attack: 1.0x" << endl
+							<< "Magic Defense: 1.0x" << endl
+							<< "Speed: 1.5x" << endl;
+					}
+					getch();
+					break;
+				}
+				else{
+					cout << endl << "Invalid selection." << endl;
+				}
+			}
+			if (userInput == "no" || userInput == "2"){
+				break;
+			}
+		}
+	}
+}
+
+void playGame(string playerClass, string userInput){
+	double fighterAttributes[7]; // The actual player's fighter's attributes.
+	if (playerClass == "warrior"){ // This will change fighterAttributes into the class's actual attributes.
+		double warriorAttributes[7]{1.5, 0.5, 1.5, 1.2, 0.8, 0.8, 1};
+		for (int i = 0; i < 7; i++){
+			fighterAttributes[i] = warriorAttributes[i];
+		}
+	}
+	else if (playerClass == "mage"){
+		double mageAttributes[7]{0.8, 2, 0.8, 1, 1.5, 1.2, 1};
+		for (int i = 0; i < 7; i++){
+			fighterAttributes[i] = mageAttributes[i];
+		}
+	}
+	else{
+		double thiefAttributes[7]{1, 1, 1.2, 1, 1, 1, 1.5};
+		for (int i = 0; i < 7; i++){
+			fighterAttributes[i] = thiefAttributes[i];
+		}
+	}
+	int playerLevel = 1; // All player data is supposed to be stored in this menu, while the stats viewer just displays them.
+	int playerStats[7]{0, 0, 0, 0, 0, 0, 0};
+	int playerExperience = 0;
+	int playerExperienceToLevelUp = 0;
+	int playerCurrentHealth;
+	int playerCurrentMana;
+	string equippedHelmet = "None";
+	int helmetBonus[7]{0, 0, 0, 0, 0, 0, 0};
+	string equippedChestplate = "None";
+	int chestplateBonus[7]{0, 0, 0, 0, 0, 0, 0};
+	string equippedLeggings = "None";
+	int leggingsBonus[7]{0, 0, 0, 0, 0, 0, 0};
+	string equippedBoots = "None";
+	int bootsBonus[7]{0, 0, 0, 0, 0, 0, 0};
+	string equippedWeapon = "None";
+	int weaponBonus[7]{0, 0, 0, 0, 0, 0, 0};
+	int equipmentBonus[7];
+	int wellLevel[7]{0, 0, 0, 0, 0, 0, 0};
+	double wellBonus[7]{1, 1, 1, 1, 1, 1, 1};
+	int healthPotions = 0;
+	int manaPotions = 0;
+	statsChanged(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, equipmentBonus, wellBonus, helmetBonus, chestplateBonus, leggingsBonus, bootsBonus, weaponBonus);
+	playerCurrentHealth = playerStats[0];
+	playerCurrentMana = playerStats[1];
+
+	int playerSquare = 1;
+	int enemyOnSquareChance = 0; // Will use modulus and rand for chance. If there is not an enemy, there will be a landmark.
+	int tooManyEnemies = 0; // The more enemies defeated without stopping by a landmark, the lower the chance an enemy will be on the next square.
+	int landmarkTypeChance = 0;
+	int goldAmount = 0; // Used for stores.
+
+	cout << endl << "You have left the city of Valor to go on an endless adventure!" << endl;
+	getch();
+	cout << "Out in the wild are some dangerous monsters. See how many you can defeat!" << endl;
+	getch();
+
+	while (true){ //Actual gameplay begins.
+		enemyOnSquareChance = rand() % 100;
+		if (enemyOnSquareChance + 1 > 25 * tooManyEnemies){ // The chances are 100%, 75%, 50%, 25%, and 0%.
+			enemySpawnAndFight(userInput, playerStats, healthPotions, manaPotions, playerSquare, playerCurrentHealth, playerCurrentMana, playerExperience, playerExperienceToLevelUp, goldAmount,
+				tooManyEnemies);
+		}
+		else{ // This means the player has gone to a landmark.
+			landmarkTypeChance = rand() % 4;
+			if (landmarkTypeChance == 0){
+				landmarkIsInn(userInput, playerStats, playerCurrentHealth, playerCurrentMana, goldAmount, playerSquare, tooManyEnemies, playerLevel, playerExperienceToLevelUp, fighterAttributes, wellBonus,
+					playerExperience);
+			}
+			else if (landmarkTypeChance == 1){
+				landmarkIsGeneralStore(userInput, goldAmount, healthPotions, manaPotions, playerSquare, tooManyEnemies);
+			}
+			else if (landmarkTypeChance == 2){
+				landmarkIsArmory(tooManyEnemies, userInput, equippedHelmet, helmetBonus, equippedChestplate, chestplateBonus, equippedLeggings, leggingsBonus, equippedBoots, bootsBonus, equippedWeapon,
+					weaponBonus, playerStats, fighterAttributes, wellBonus, playerCurrentHealth, playerCurrentMana, goldAmount, playerSquare, playerLevel, playerExperienceToLevelUp, equipmentBonus,
+					playerExperience);
+			}
+			else{
+				landmarkIsWell(tooManyEnemies, userInput, playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, equipmentBonus, wellBonus, helmetBonus, chestplateBonus, leggingsBonus,
+					bootsBonus, weaponBonus, playerCurrentHealth, playerCurrentMana, goldAmount, playerSquare, playerExperience, wellLevel);
+			}
+		}
+		while (true){ //After defeating an enemy or exitting a landmark, this menu appears.
+			if (playerCurrentHealth <= 0){ // Check to see if the player is dead (Battle scenarios).
+				return;
+			}
+			if (playerExperience >= playerExperienceToLevelUp){ // Check to see if the player has leveled up.
+				levelUp(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, equipmentBonus, wellBonus, helmetBonus, chestplateBonus, leggingsBonus, bootsBonus, weaponBonus,
+					playerExperience, playerCurrentHealth, playerCurrentMana);
+			}
+			getch();
+			cout << endl << "What would you like to do?" << endl
+				<< "[1: Proceed]" << endl
+				//cout << "[View Items]" << endl;
+				<< "[2: View Stats]" << endl;
+			while (true){
+				fullInput(userInput);
+				if (userInput == "proceed" || userInput == "1"){
+					cout << endl << "You carry on your adventure!" << endl;
+					playerSquare++;
+					getch();
+					break;
+				}
+				//else if (userInput == "view items"){
+				// viewItems();
+				//}
+				else if (userInput == "view stats" || userInput == "2"){
+					viewStats(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, wellBonus, playerCurrentHealth, playerCurrentMana, playerExperience, goldAmount);
+					break;
+				}
+				else{
+					cout << endl << "Invalid selection." << endl;
+				}
+			}
+			if (userInput == "proceed" || userInput == "1"){
+				break;
+			}
+		}
+	}
+}
+
+void viewStats(int playerLevel, int playerExperienceToLevelUp, int playerStats[7], double fighterAttributes[7], double wellBonus[7], int playerCurrentHealth, int playerCurrentMana, int playerExperience,
+	int goldAmount){
+	cout << endl << "Level: " << playerLevel << endl
+		<< "Experience: " << playerExperience << "/" << playerExperienceToLevelUp << endl
+		<< "Health: " << playerCurrentHealth << "/" << playerStats[0] << endl
+		<< "Mana: " << playerCurrentMana << "/" << playerStats[1] << endl
+		<< "Attack: " << playerStats[2] << endl
+		<< "Defense: " << playerStats[3] << endl
+		<< "Magic Attack: " << playerStats[4] << endl
+		<< "Magic Defense: " << playerStats[5] << endl
+		<< "Speed: " << playerStats[6] << endl
+		<< "Gold: " << goldAmount << endl;
+}
+
+void statsChanged(int& playerLevel, int& playerExperienceToLevelUp, int playerStats[7], double fighterAttributes[7], int equipmentBonus[7], double wellBonus[7], int helmetBonus[7],
+	int chestplateBonus[7], int leggingsBonus[7], int bootsBonus[7], int weaponBonus[7]){ // This function should be called when stats change, such as leveling up or equiping armor.
+	for (int i = 0; i < 7; i++){
+		equipmentBonus[i] = helmetBonus[i] + chestplateBonus[i] + leggingsBonus[i] + bootsBonus[i] + weaponBonus[i];
+	}
+	playerExperienceToLevelUp = 4 + pow(1.4, playerLevel);
+	playerStats[0] = 20 * fighterAttributes[0] * wellBonus[0] * pow(1.3, playerLevel - 1) + equipmentBonus[0];
+	playerStats[1] = 10 * fighterAttributes[1] * wellBonus[1] * pow(1.3, playerLevel - 1) + equipmentBonus[1];
+	playerStats[2] = 4 * fighterAttributes[2] * wellBonus[2] * pow(1.3, playerLevel - 1) + equipmentBonus[2];
+	playerStats[3] = 2.5 * fighterAttributes[3] * wellBonus[3] * pow(1.3, playerLevel - 1) + equipmentBonus[3];
+	playerStats[4] = 4 * fighterAttributes[4] * wellBonus[4] * pow(1.3, playerLevel - 1) + equipmentBonus[4];
+	playerStats[5] = 2.5 * fighterAttributes[5] * wellBonus[5] * pow(1.3, playerLevel - 1) + equipmentBonus[5];
+	playerStats[6] = 10 * fighterAttributes[6] * wellBonus[6] * pow(1.3, playerLevel - 1) + equipmentBonus[6];
+}
+
+void levelUp(int& playerLevel, int& playerExperienceToLevelUp, int playerStats[7], double fighterAttributes[7], int equipmentBonus[7], double wellBonus[7], int helmetBonus[7],
+	int chestplateBonus[7], int leggingsBonus[7], int bootsBonus[7], int weaponBonus[7], int& playerExperience, int& playerCurrentHealth, int& playerCurrentMana){
+	playerExperience = 0;
+	playerLevel++;
+	int beforeLevelingStats[7]{playerStats[0], playerStats[1], playerStats[2], playerStats[3], playerStats[4], playerStats[5], playerStats[6], };
+	string statNames[7]{"Health", "Mana", "Attack", "Defense", "Magic Attack", "Magic Defense", "Speed"};
+	cout << "You have leveled up! You are now level " << playerLevel << "!" << endl << endl;
+	statsChanged(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, equipmentBonus, wellBonus, helmetBonus, chestplateBonus, leggingsBonus, bootsBonus, weaponBonus);
+	for (int i = 0; i < 7; i++){
+		cout << statNames[i] << ": +" << playerStats[i] - beforeLevelingStats[i] << endl;
+	}
+	playerCurrentHealth = playerStats[0];
+	playerCurrentMana = playerStats[1];
+}
+
+void enemySpawnAndFight(string userInput, int playerStats[7], int& healthPotions, int& manaPotions, int playerSquare, int& playerCurrentHealth, int& playerCurrentMana,
+	int& playerExperience, int& playerExperienceToLevelUp, int& goldAmount, int& tooManyEnemies){
+	int enemyChosen = rand() % 4;
+	string enemyList[4]{"Goblin", "Bear", "Warlock", "Ghost"};
+	string enemyFighting = enemyList[enemyChosen];
+	double enemyAttributes[7]; // Enemy stats equated here.
+	if (enemyFighting == "Goblin"){
+		double enemyAttributesSelected[7]{1, 0, 1, 1, 1, 1, 1};
+		for (int i = 0; i < 7; i++){
+			enemyAttributes[i] = enemyAttributesSelected[i];
+		}
+	}
+	else if (enemyFighting == "Bear"){
+		double enemyAttributesSelected[7]{1.5, 0, 0.7, 1.3, 1, 0.8, 0.7};
+		for (int i = 0; i < 7; i++){
+			enemyAttributes[i] = enemyAttributesSelected[i];
+		}
+	}
+	else if (enemyFighting == "Warlock"){
+		double enemyAttributesSelected[7]{0.7, 2, 0.5, 0.8, 1.5, 1.2, 1};
+		for (int i = 0; i < 7; i++){
+			enemyAttributes[i] = enemyAttributesSelected[i];
+		}
+	}
+	else{ // Ghost Attributes
+		double enemyAttributesSelected[7]{1, 0, 1, 1.5, 0.5, 1, 1.2};
+		for (int i = 0; i < 7; i++){
+			enemyAttributes[i] = enemyAttributesSelected[i];
+		}
+	}
+	int enemyMaxHealth = 5 * pow(1.1, playerSquare) * enemyAttributes[0];
+	int enemyCurrentHealth = enemyMaxHealth;
+	int enemyMaxMana = 10 * enemyAttributes[1];
+	int enemyCurrentMana = enemyMaxMana;
+	string enemyAttackDetail; // This is carried onto each monster AI so the details of their attacks are carried on.
+	double enemyAttackPowerModifier = 0; // Based on what kind of attack, this will multiply the value.
+	double enemyAttackChance; //100 = 100% chance (default)
+	int enemyAttack = 3 * pow(1.1, playerSquare) * enemyAttributes[2];
+	int playerDamageTaken = 0;
+	int enemyDamageTaken = 0;
+	int enemyDefense = 2 * pow(1.1, playerSquare) * enemyAttributes[3];
+	int enemyMagicAttack = 3 * pow(1.1, playerSquare) * enemyAttributes[4];
+	int enemyMagicDefense = 2 * pow(1.1, playerSquare) * enemyAttributes[5];
+	int enemySpeed = 9 * pow(1.1, playerSquare) * enemyAttributes[6];
+	bool physicalOrMagic = false; // false = phsyical, true = magic.
+	int goldDropped = 5 * pow(1.1, playerSquare);
+	int battleExperience = 2 + 0.7 * pow(1.1, playerSquare);
+	int fightTurn = 0; // 0 = player, 1 = enemy
+	double randomAttackMultiplier;
+
+	cout << endl << "You encounter a " << enemyFighting << "!" << endl;
+	getch();
+	if (playerStats[6] < enemySpeed){
+		cout << endl << enemyFighting << " attacks first!";
+		fightTurn = 1;
+	}
+	while (true){
+		if (fightTurn == 1){
+			randomAttackMultiplier = rand() % 2500;
+			if (enemyFighting == "Goblin"){
+				goblinAI(enemyAttackDetail, enemyAttackPowerModifier, enemyAttackChance, physicalOrMagic);
+			}
+			else if (enemyFighting == "Bear"){
+				bearAI(enemyAttackDetail, enemyAttackPowerModifier, enemyAttackChance, physicalOrMagic);
+			}
+			else if (enemyFighting == "Warlock"){
+				warlockAI(enemyAttackDetail, enemyAttackPowerModifier, enemyAttackChance, enemyCurrentMana, physicalOrMagic);
+			}
+			else{
+				ghostAI(enemyAttackDetail, enemyAttackPowerModifier, enemyAttackChance, enemyCurrentMana, physicalOrMagic);
+			}
+			cout << endl << enemyAttackDetail << endl;
+			if (enemyAttackChance * 100 * enemySpeed / playerStats[6] > rand() % 100){
+				if (physicalOrMagic == false){ // Player took physical damage.
+					playerDamageTaken = (enemyAttack * enemyAttackPowerModifier - playerStats[3] / 2) * (0.75 + randomAttackMultiplier / 5000);
+					if (playerDamageTaken < 1){
+						playerDamageTaken = 1;
+					}
+				}
+				else{ // Player took magic damage.
+					playerDamageTaken = (enemyMagicAttack * enemyAttackPowerModifier - playerStats[5] / 2) * (0.75 + randomAttackMultiplier / 5000);
+					if (playerDamageTaken < 1){
+						playerDamageTaken = 1;
+					}
+				}
+				cout << "You took " << playerDamageTaken << " damage!" << endl;
+				playerCurrentHealth -= playerDamageTaken;
+				if (playerCurrentHealth <= 0){
+					cout << "You died!" << endl;
+					getch();
+					return;
+				}
+			}
+			else{
+				cout << enemyFighting << " missed!" << endl;
+			}
+			getch();
+			fightTurn = 0;
+		}
+		randomAttackMultiplier = rand() % 2500;
+		cout << endl << "Health: " << playerCurrentHealth << "/" << playerStats[0] << endl
+			<< "Mana: " << playerCurrentMana << "/" << playerStats[1] << endl
+			<< "Enemy Health: " << enemyCurrentHealth << "/" << enemyMaxHealth << endl
+			<< "Health potions: " << healthPotions << endl
+			<< "Mana potions: " << manaPotions << endl << endl
+			<< "What do you want to do?" << endl
+			<< "[1: Attack]" << endl
+			<< "[2: Magic]" << endl
+			<< "[3: Use Health Potion]" << endl
+			<< "[4: Use Mana Potion]" << endl;
+		while (true){
+			fullInput(userInput);
+			if (userInput == "attack" || userInput == "1"){
+				if (100 * playerStats[6] / enemySpeed > rand() % 100){
+					enemyDamageTaken = (playerStats[2] - enemyDefense / 2) * (0.75 + randomAttackMultiplier / 5000);
+					if (enemyDamageTaken < 1){
+						enemyDamageTaken = 1;
+					}
+					enemyCurrentHealth -= enemyDamageTaken;
+					cout << endl << enemyFighting << " took " << enemyDamageTaken << " damage!" << endl;
+				}
+				else{
+					cout << endl << "You missed!" << endl;
+				}
+
+			}
+			else if (userInput == "magic" || userInput == "2"){
+				if (playerCurrentMana >= 3){
+					playerCurrentMana -= 3;
+					if (100 * playerStats[6] / enemySpeed > rand() % 100){
+						enemyDamageTaken = (playerStats[4] - enemyMagicDefense / 2) * (0.75 + randomAttackMultiplier / 5000);
+						if (enemyDamageTaken < 1){
+							enemyDamageTaken = 1;
+						}
+						enemyCurrentHealth -= enemyDamageTaken;
+						cout << endl << enemyFighting << " took " << enemyDamageTaken << " damage!" << endl;
+					}
+					else{
+						cout << endl << "You missed!" << endl;
+					}
+				}
+				else{
+					cout << endl << "You do not have enough mana to use magic attacks!" << endl;
+					continue;
+				}
+			}
+			else if (userInput == "use health potion" || userInput == "3"){
+				if (healthPotions < 1){
+					cout << endl << "You do not have any health potions!" << endl;
+					continue;
+				}
+				else{
+					cout << endl << "You use a health potion!" << endl;
+					playerCurrentHealth = playerStats[0];
+					healthPotions--;
+				}
+			}
+			else if (userInput == "use mana potion" || userInput == "4"){
+				if (manaPotions < 1){
+					cout << endl << "You do not have any mana potions!" << endl;
+					continue;
+				}
+				else{
+					cout << endl << "You use a mana potion!" << endl;
+					playerCurrentMana = playerStats[1];
+					manaPotions--;
+				}
+			}
+			else if (userInput == "debug"){
+				cout << endl << "Enemy Mana: " << enemyCurrentMana << "/" << enemyMaxMana << endl
+					<< "Enemy Attack: " << enemyAttack << endl
+					<< "Enemy Defense: " << enemyDefense << endl
+					<< "Enemy Magic Attack: " << enemyMagicAttack << endl
+					<< "Enemy Magic Defense: " << enemyMagicDefense << endl
+					<< "Enemy Speed: " << enemySpeed << endl;
+				continue;
+			}
+			else{
+				cout << endl << "Invalid selection." << endl;
+				continue;
+			}
+			if (enemyCurrentHealth <= 0){ // Check to see if the monster is dead.
+				cout << endl << enemyFighting << " has been defeated!" << endl;
+				getch();
+				goldAmount += goldDropped;
+				cout << "You got " << goldDropped << " gold!" << endl;
+				playerExperience += battleExperience;
+				cout << "You got " << battleExperience << " experience!" << endl;
+				tooManyEnemies++;
+				return;
+			}
+			getch();
+			fightTurn = 1;
+			break;
+		}
+	}
+}
+
+void goblinAI(string& enemyAttackDetail, double& enemyAttackPowerModifier, double& enemyAttackChance, bool& physicalOrMagic){
+	int enemyAttackChoice = rand() % 3;
+	if (enemyAttackChoice == 0){ // Light Attack
+		enemyAttackDetail = "The goblin gives a quick strike with its axe!";
+		enemyAttackPowerModifier = 0.5;
+		enemyAttackChance = 2;
+		physicalOrMagic = false;
+	}
+	else if (enemyAttackChoice == 1){ // Normal Attack
+		enemyAttackDetail = "The goblin cleaves with force!";
+		enemyAttackPowerModifier = 1;
+		enemyAttackChance = 1;
+		physicalOrMagic = false;
+	}
+	else{ // Heavy Attack
+		enemyAttackDetail = "The goblin charges up a blow!";
+		enemyAttackPowerModifier = 2;
+		enemyAttackChance = 0.5;
+		physicalOrMagic = false;
+	}
+}
+
+void ghostAI(string& enemyAttackDetail, double& enemyAttackPowerModifier, double& enemyAttackChance, int& enemyCurrentMana, bool& physicalOrMagic) {
+	int enemyAttackChoice = rand() % 3;
+	if (enemyAttackChoice == 0){ // Super Light Attack
+		enemyAttackDetail = "The ghost frightens you with a scream!";
+		enemyAttackPowerModifier = 0.3;
+		enemyAttackChance = 9001; // This should guarentee a hit, because all the fighters can be scared. (lol)
+		physicalOrMagic = false;
+	}
+	else if (enemyAttackChoice == 1 && enemyCurrentMana >= 3){ // Magic Attack
+		enemyCurrentMana -= 3;
+		enemyAttackDetail = "The ghost ignites you with a cursed flame!";
+		enemyAttackPowerModifier = 1;
+		enemyAttackChance = 1;
+		bool physicalOrMagic = true;
+	}
+	else{ // Heavy Attack
+		enemyAttackDetail = "The ghost hurls a table at you!";
+		enemyAttackPowerModifier = 2;
+		enemyAttackChance = 0.5;
+		physicalOrMagic = false;
+	}
+}
+
+void bearAI(string& enemyAttackDetail, double& enemyAttackPowerModifier, double& enemyAttackChance, bool& physicalOrMagic){
+	int enemyAttackChoice = rand() % 3;
+	if (enemyAttackChoice == 0){ // Light Attack
+		enemyAttackDetail = "The bear quickly swipes with its paw!";
+		enemyAttackPowerModifier = 0.5;
+		enemyAttackChance = 2;
+		physicalOrMagic = false;
+	}
+	else if (enemyAttackChoice == 1){ // Normal Attack
+		enemyAttackDetail = "The bear lashs a bite!";
+		enemyAttackPowerModifier = 1;
+		enemyAttackChance = 1;
+		physicalOrMagic = false;
+	}
+	else{ // Heavy Attack
+		enemyAttackDetail = "The bear charges to flatten you!";
+		enemyAttackPowerModifier = 2;
+		enemyAttackChance = 0.5;
+		physicalOrMagic = false;
+	}
+}
+
+void warlockAI(string& enemyAttackDetail, double& enemyAttackPowerModifier, double& enemyAttackChance, int& enemyCurrentMana, bool& physicalOrMagic){
+	if (enemyCurrentMana >= 3){
+		enemyCurrentMana -= 3;
+		int enemyAttackChoice = rand() % 3;
+		if (enemyAttackChoice == 0){ // Light Attack
+			enemyAttackDetail = "The warlock flicks a small ball of ice!";
+			enemyAttackPowerModifier = 0.5;
+			enemyAttackChance = 2;
+			bool physicalOrMagic = true;
+		}
+		else if (enemyAttackChoice == 1){ // Normal Attack
+			enemyAttackDetail = "The warlock casts a fireball!";
+			enemyAttackPowerModifier = 1;
+			enemyAttackChance = 1;
+			bool physicalOrMagic = true;
+		}
+		else{ // Heavy Attack
+			enemyAttackDetail = "The warlock conjures a ball of darkness!";
+			enemyAttackPowerModifier = 2;
+			enemyAttackChance = 0.5;
+			bool physicalOrMagic = true;
+		}
+	}
+	else{
+		enemyAttackDetail = "The warlock smacks you with his stick!";
+		enemyAttackPowerModifier = 0.3;
+		enemyAttackChance = 1;
+		physicalOrMagic = false;
+	}
+}
+
+void landmarkIsInn(string userInput, int playerStats[7], int& playerCurrentHealth, int& playerCurrentMana, int& goldAmount, int playerSquare, int& tooManyEnemies, int playerLevel,
+	int playerExperienceToLevelUp, double fighterAttributes[7], double wellBonus[7], int playerExperience){
+	tooManyEnemies = 0;
+	int innCost = 1.8 * pow(1.1, playerSquare);
+	cout << endl << "You stop by an inn. You can rest to recover your health and mana." << endl;
+	getch();
+	while (true){
+		cout << "It costs " << innCost << " gold to rest here. You have " << goldAmount << " gold. Would you like to rest?" << endl
+			<< "[1: Yes]" << endl
+			<< "[2: No]" << endl
+			<< "[3: View Stats]" << endl;
+		while (true){
+			fullInput(userInput);
+			if (userInput == "yes" || userInput == "1"){
+				if (goldAmount >= innCost){
+					goldAmount -= innCost;
+					playerCurrentHealth = playerStats[0];
+					playerCurrentMana = playerStats[1];
+					cout << endl << "After a day in the inn, you feel refreshed! Your health and mana is refilled." << endl;
+					return;
+				}
+				else{
+					cout << endl << "You do not have enough gold to stay in." << endl
+						<< "You will have to continue without resting." << endl;
+					return;
+				}
+			}
+			else if (userInput == "no" || userInput == "2"){
+				cout << endl << "You decide to continue on your adventure without resting." << endl;
+				return;
+			}
+			else if (userInput == "view stats" || userInput == "3"){
+				viewStats(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, wellBonus, playerCurrentHealth, playerCurrentMana, playerExperience, goldAmount);
+				getch();
+			}
+			else{
+				cout << endl << "Invalid selection." << endl;
+			}
+		}
+	}
+}
+
+void landmarkIsGeneralStore(string userInput, int& goldAmount, int& healthPotions, int& manaPotions, int playerSquare, int& tooManyEnemies){
+	tooManyEnemies = 0;
+	int healthPotionStock = (rand() % 4) + 1;
+	int manaPotionStock = (rand() % 4) + 1;
+	int healthPotionCost = 1.5 * pow(1.1, playerSquare);
+	int manaPotionCost = 0.9 * pow(1.1, playerSquare);
+	cout << endl << "You stop by a general store. They have health and mana potions for sale." << endl;
+	getch();
+	while (true){
+		cout << endl << "Health potions cost " << healthPotionCost << " gold. There are " << healthPotionStock << " in stock." << endl
+			<< "Mana potions cost " << manaPotionCost << " gold. There are " << manaPotionStock << " in stock." << endl
+			<< "You have " << goldAmount << " gold. Would you like to buy anything? " << endl
+			<< "[1: Buy Health Potion]" << endl
+			<< "[2: Buy Mana Potion]" << endl
+			<< "[3: Leave]" << endl;
+		while (true){
+			fullInput(userInput);
+			if (userInput == "buy health potion" || userInput == "1"){
+				if (goldAmount >= healthPotionCost && healthPotionStock >= 1){
+					goldAmount -= healthPotionCost;
+					healthPotions++;
+					healthPotionStock--;
+					cout << endl << "You purchase a health potion." << endl;
+					getch();
+					break;
+				}
+				else if (healthPotionStock <= 0){
+					cout << endl << "There are no health potions available." << endl;
+					getch();
+					break;
+				}
+				else{
+					cout << endl << "You do not have enough gold." << endl;
+					getch();
+					break;
+				}
+			}
+			else if (userInput == "buy mana potion" || userInput == "2"){
+				if (goldAmount >= manaPotionCost && manaPotionStock >= 1){
+					goldAmount -= manaPotionCost;
+					manaPotions++;
+					manaPotionStock--;
+					cout << endl << "You purchase a mana potion." << endl;
+					getch();
+					break;
+				}
+				else if (manaPotionStock <= 0){
+					cout << endl << "There are no mana potions available." << endl;
+					getch();
+					break;
+				}
+				else{
+					cout << endl << "You do not have enough gold." << endl;
+					getch();
+					break;
+				}
+			}
+			else if (userInput == "leave" || userInput == "3"){
+				cout << endl << "You leave the general store." << endl;
+				return;
+			}
+			else{
+				cout << endl << "Invalid selection." << endl;
+			}
+		}
+	}
+}
+
+void landmarkIsArmory(int& tooManyEnemies, string userInput, string& equippedHelmet, int helmetBonus[7], string& equippedChestplate, int chestplateBonus[7], string& equippedLeggings, int leggingsBonus[7],
+	string& equippedBoots, int bootsBonus[7], string& equippedWeapon, int weaponBonus[7], int playerStats[7], double fighterAttributes[7], double wellBonus[7], int& playerCurrentHealth,
+	int& playerCurrentMana, int& goldAmount, int playerSquare, int playerLevel, int playerExperienceToLevelUp, int equipmentBonus[7], int playerExperience){
+	tooManyEnemies = 0;
+	string armoryFirstAdjective[26]{"Alfred", "Boris", "Callus", "Daniel", "Edward", "Felipe", "George", "Holt", "Ivan", "Joel", "King", "Leo", "Miller", "Nordic", "O' Grady", "Paul", "Quyenis",
+		"Roche", "Stan", "Thomas", "Ukai", "Vello", "Wallace", "Xanerdoo", "Tyo", "Zoom"}; // I had to replace the Y with Tyo because I couldn't think of any names that start with "Y", lol.
+	string armorySecondAdjective[15]{"Busy", "Heated", "Top-Notch", "Excellent", "Strong", "Quality", "Popular", "Superb", "Stone", "Steampunk", "Shining", "Metallic", "Generic", "Hot", "Powerful"};
+	int i = rand() % 26; // i and j should be used interchangeably for loops and stuff.
+	int j = rand() % 15;
+	int k; // This variable will be in other areas in this function.
+	int l; // So will this.
+	cout << endl << "You stop by " << armoryFirstAdjective[i] << "'s " << armorySecondAdjective[j] << " Armory." << endl;
+	getch();
+	string statNames[7]{"Health", "Mana", "Attack", "Defense", "Magic Attack", "Magic Defense", "Speed"};
+	int itemsGenerated = rand() % 4 + 5; // Amount of items generated (5-8)
+	string equipmentName[8]{" "" "" "" "" "" "" "" "}; // Name of the equipment
+	string equipmentNameLowerCase[8]{" "" "" "" "" "" "" "" "}; // Lower case versions of the equipment
+	string equipmentType[8]; // This will display the user what type of equipment it is.
+	int equipmentStats[7][8]{
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+	};
+	int equipmentCost[8]{0, 0, 0, 0, 0, 0, 0, 0};
+	double armorBaseMultiplier;
+	string armorAdjective[12]{"Old", "Used", "Normal", "Heavy", "Light", "Hard", "Strong", "Soothing", "Jagged", "Magical", "Rare", "Legendary"};
+	double armorAdjectiveStatModifiers[7][12]{
+		{0, 0, 0, 0, 0, 0, 0, 1.5, 0, 0, 1.2, 2.25},
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.8, 1.15 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3, 0.2, 0.45 },
+		{ 0.6, 0.8, 1, 1.5, 0.8, 1.2, 1.5, 1, 1, 1, 1.75, 2 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3, 0.2, 0.45 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5, 0.35, 0.7 },
+		{ 0, 0, 0, -0.2, 0.2, 0, 0, 0, 0, 0, 0.15, 0.3 }
+	};
+	double armorAdjectiveCostModifier[12]{0.6, 0.8, 1, 1, 1, 1.2, 1.5, 1.3, 1.3, 1.7, 3, 6};
+	string armorMaterial[4]{"Leather", "Fabric", "Chainmail", "Iron"};
+	double armorMaterialStatModifiers[7][4]{
+		{0, 0, 0, 0},
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0.8, 0.5, 1, 1.4 },
+		{ 0, 0, 0, 0 },
+		{ 0.5, 0.8, 0, -0.1 },
+		{ 0.2, 0.2, 0, -0.1 }
+	};
+	string meleeWeapon[4]{"Sword", "Dagger", "Mace", "Battle Axe"};
+	double meleeWeaponStatModifiers[7][4]{
+		{0, 0, 0, 0},
+		{ 0, 0, 0, 0 },
+		{ 1, 0.8, 1.2, 1.5 },
+		{ 0.2, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0, 0.3, 0, -0.2 }
+	};
+	string meleeWeaponAdjective[12]{"Old", "Used", "Normal", "Heavy", "Light", "Sharp", "Strong", "Glorius", "Steady", "Magical", "Rare", "Legendary"};
+	double meleeWeaponAdjectiveStatModifiers[7][12]{
+		{0, 0, 0, 0, 0, 0, 0, 1.5, 0, 0, 1.2, 2.25},
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.8, 1.15 },
+		{ 0.6, 0.8, 1, 1.5, 0.8, 1.2, 1.5, 1, 1, 1, 1.75, 2 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0.3, 0, 0.2, 0.45 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3, 0.2, 0.45 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5, 0.35, 0.7 },
+		{ 0, 0, 0, -0.2, 0.2, 0, 0, 0, 0, 0, 0.15, 0.3 }
+	};
+	double meleeWeaponAdjectiveCostModifier[12]{0.6, 0.8, 1, 1, 1, 1.2, 1.5, 1.3, 1.3, 1.7, 3, 6};
+	string magicWeapon[3]{"Wand", "Staff", "Tome"};
+	double magicWeaponStatModifiers[7][3]{
+		{0, 0, 0},
+		{ 1.2, 0.8, 0 },
+		{ 0.4, 0.5, 0 },
+		{ 0, 0, 0 },
+		{ 0.7, 1, 1.3 },
+		{ 0, 0, 0 },
+		{ 0, 0, 0 }
+	};
+	string magicWeaponAdjective[12]{"Old", "Used", "Normal", "Dense", "Hollow", "Fizzing", "Strong", "Glorius", "Steady", "Ruthless", "Rare", "Legendary"};
+	double magicWeaponAdjectiveStatModifiers[7][12]{
+		{0, 0, 0, 0, 0, 0, 0, 1.5, 0, 0, 1.2, 2.25},
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.8, 1.15 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.2, 0.45 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0.3, 0, 0.2, 0.45 },
+		{ 0.6, 0.8, 1, 1.5, 0.8, 1.2, 1.5, 1, 1, 1, 1.75, 2 },
+		{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.35, 0.7 },
+		{ 0, 0, 0, -0.2, 0.2, 0, 0, 0, 0, 0, 0.15, 0.3 }
+	};
+	double magicWeaponAdjectiveCostModifier[12]{0.6, 0.8, 1, 1, 1, 1.2, 1.5, 1.3, 1.3, 1.7, 3, 6};
+	for (i = 0; i < itemsGenerated; i++){ // Items are generated here. i here is the weapon number it is generating.
+		int itemType = rand() % 2; // Type of item generated (Weapon or armor)
+		if (itemType == 0){ // Armor generated.
+			int armorType = rand() % 4;
+			if (armorType == 0){
+				equipmentType[i] = "Helmet";
+				armorBaseMultiplier = 1;
+			}
+			else if (armorType == 1){
+				equipmentType[i] = "Chestplate";
+				armorBaseMultiplier = 1.6;
+			}
+			else if (armorType == 2){
+				equipmentType[i] = "Leggings";
+				armorBaseMultiplier = 1.4;
+			}
+			else{
+				equipmentType[i] = "Boots";
+				armorBaseMultiplier = 0.8;
+			}
+			j = rand() % 4; // Material
+			k = rand() % 12; // Adjective
+			for (l = 0; l < 7; l++){ // Apply stats to the equipment based on modifiers. l goes through the varying stats.
+				equipmentStats[l][i] = armorBaseMultiplier * pow(1.1, playerSquare) * (armorMaterialStatModifiers[l][j] + armorAdjectiveStatModifiers[l][k]);
+				equipmentCost[i] = 2 * pow(1.1, playerSquare) * armorBaseMultiplier * armorAdjectiveCostModifier[k];
+			}
+			equipmentName[i] = armorAdjective[k] + " " + armorMaterial[j] + " " + equipmentType[i];
+		}
+		else{ // Weapon generated.
+			int weaponType = rand() % 2;
+			if (weaponType == 0){ // Melee weapon generated.
+				equipmentType[i] = "Melee Weapon";
+				j = rand() % 4; // Melee Weapon
+				k = rand() % 12; // Adjective
+				for (l = 0; l < 7; l++){
+					equipmentStats[l][i] = pow(1.1, playerSquare) * (meleeWeaponStatModifiers[l][j] + meleeWeaponAdjectiveStatModifiers[l][k]);
+					equipmentCost[i] = 2 * pow(1.1, playerSquare) * meleeWeaponAdjectiveCostModifier[k];
+				}
+				equipmentName[i] = meleeWeaponAdjective[k] + " " + meleeWeapon[j];
+			}
+			else{
+				equipmentType[i] = "Magic Weapon";
+				j = rand() % 3; // Magic Weapon
+				k = rand() % 12; // Adjective
+				for (l = 0; l < 7; l++){
+					equipmentStats[l][i] = pow(1.1, playerSquare) * (magicWeaponStatModifiers[l][j] + magicWeaponAdjectiveStatModifiers[l][k]);
+					equipmentCost[i] = 2 * pow(1.1, playerSquare) * magicWeaponAdjectiveCostModifier[k];
+				}
+				equipmentName[i] = magicWeaponAdjective[k] + " " + magicWeapon[j];
+			}
+		}
+		string temp = equipmentName[i];
+		for (j = 0; j < temp.length(); j++) {
+			temp[j] = tolower(temp[j]);
+		}
+		equipmentNameLowerCase[i] = temp;
+	}
+
+	int itemsInStock = itemsGenerated;
+	while (true){ // Actual interface
+		cout << endl << "What would you like to do?" << endl
+			<< "[1: Look At Items On Stock]" << endl
+			<< "[2: View Current Equipment]" << endl
+			<< "[3: View Stats]" << endl
+			<< "[4: Leave]" << endl;
+		while (true){
+			fullInput(userInput);
+			if (userInput == "look at items on stock" || userInput == "1"){
+				cout << endl << "Which item would you like to look at?" << endl;
+				for (i = 0; i < itemsInStock; i++){
+					cout << "[" << i + 1 << ": " << equipmentName[i] << "]" << endl;
+				}
+				cout << "[" << i + 1 << ": Back]" << endl;
+				while (true){
+					fullInput(userInput);
+					for (i = 0; i < itemsInStock; i++){
+						if (userInput == equipmentNameLowerCase[i] || userInput == to_string(i + 1)){
+							cout << endl << equipmentName[i] << endl
+								<< "Equipment Type: " << equipmentType[i] << endl << endl;
+							for (j = 0; j < 7; j++){
+								if (equipmentStats[j][i] == 0){
+									continue;
+								}
+								else{
+									cout << statNames[j] << ": " << equipmentStats[j][i] << endl;
+								}
+							}
+							cout << "Cost: " << equipmentCost[i] << " Gold" << endl;
+							cout << "Your Gold: " << goldAmount << endl;
+							getch();
+							cout << endl << "Do you want to purchase the " << equipmentName[i] << "?" << endl
+								<< "[1: Yes]" << endl
+								<< "[2: No]" << endl
+								<< "[3: Compare]" << endl;
+							while (true){
+								fullInput(userInput);
+								if (userInput == "yes" || userInput == "1"){
+									if (goldAmount >= equipmentCost[i]){
+										if (equipmentType[i] == "Helmet"){
+											equippedHelmet = equipmentName[i];
+											for (k = 0; k < 7; k++){
+												helmetBonus[k] = equipmentStats[k][i];
+											}
+										}
+										else if (equipmentType[i] == "Chestplate"){
+											equippedChestplate = equipmentName[i];
+											for (k = 0; k < 7; k++){
+												chestplateBonus[k] = equipmentStats[k][i];
+											}
+										}
+										else if (equipmentType[i] == "Leggings"){
+											equippedLeggings = equipmentName[i];
+											for (k = 0; k < 7; k++){
+												leggingsBonus[k] = equipmentStats[k][i];
+											}
+										}
+										else if (equipmentType[i] == "Boots"){
+											equippedBoots = equipmentName[i];
+											for (k = 0; k < 7; k++){
+												bootsBonus[k] = equipmentStats[k][i];
+											}
+										}
+										else{
+											equippedWeapon = equipmentName[i];
+											for (k = 0; k < 7; k++){
+												weaponBonus[k] = equipmentStats[k][i];
+											}
+										}
+										goldAmount -= equipmentCost[i];
+										cout << endl << "You purchase and equip the " << equipmentName[i] << "." << endl;
+										statsChanged(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, equipmentBonus, wellBonus, helmetBonus, chestplateBonus, leggingsBonus, bootsBonus, weaponBonus);
+										if (playerCurrentHealth > playerStats[0]){
+											playerCurrentHealth = playerStats[0];
+										}
+										if (playerCurrentMana > playerStats[1]){
+											playerCurrentMana = playerStats[1];
+										}
+										getch();
+										cout << endl << "Which item would you like to look at?" << endl;
+										for (i = 0; i < itemsInStock; i++){
+											cout << "[" << i + 1 << ": " << equipmentName[i] << "]" << endl;
+										}
+										cout << "[" << i + 1 << ": Back]" << endl;
+										userInput = "continue";
+										break;
+									}
+									else{
+										cout << endl << "You do not have enough gold." << endl;
+										getch();
+									}
+								}
+								else if (userInput == "no" || userInput == "2"){
+									cout << endl << "Which item would you like to look at?" << endl;
+									for (i = 0; i < itemsInStock; i++){
+										cout << "[" << i + 1 << ": " << equipmentName[i] << "]" << endl;
+									}
+									cout << "[" << i + 1 << ": Back]" << endl;
+									userInput = "continue";
+									break;
+								}
+								else if (userInput == "compare" || userInput == "3"){
+									string compareEquipmentName;
+									int compareEquipmentStats[7];
+									if (equipmentType[i] == "Helmet"){
+										compareEquipmentName = equippedHelmet;
+										for (k = 0; k < 7; k++){
+											compareEquipmentStats[k] = helmetBonus[k];
+										}
+									}
+									else if (equipmentType[i] == "Chestplate"){
+										compareEquipmentName = equippedChestplate;
+										for (k = 0; k < 7; k++){
+											compareEquipmentStats[k] = chestplateBonus[k];
+										}
+									}
+									else if (equipmentType[i] == "Leggings"){
+										compareEquipmentName = equippedChestplate;
+										for (k = 0; k < 7; k++){
+											compareEquipmentStats[k] = leggingsBonus[k];
+										}
+									}
+									else if (equipmentType[i] == "Boots"){
+										compareEquipmentName = equippedBoots;
+										for (k = 0; k < 7; k++){
+											compareEquipmentStats[k] = bootsBonus[k];
+										}
+									}
+									else{
+										compareEquipmentName = equippedWeapon;
+										for (k = 0; k < 7; k++){
+											compareEquipmentStats[k] = weaponBonus[k];
+										}
+									}
+									cout << endl << compareEquipmentName << " vs. " << equipmentName[i] << endl
+										<< "If equiped: " << endl << endl;
+									for (l = 0; l < 7; l++){
+										string needAPlus;
+										if (equipmentStats[l][i] - compareEquipmentStats[l] >= 0){
+											needAPlus = " +";
+										}
+										else{
+											needAPlus = " ";
+										}
+										cout << statNames[l] << ":" << needAPlus << equipmentStats[l][i] - compareEquipmentStats[l] << endl;
+									}
+									getch();
+									cout << endl << "Do you want to purchase the " << equipmentName[i] << "?" << endl
+										<< "[1: Yes]" << endl
+										<< "[2: No]" << endl
+										<< "[3: Compare]" << endl;
+								}
+								else{
+									cout << endl << "Invalid response." << endl;
+								}
+							}
+							break;
+						}
+					}
+					if (userInput == "back" || userInput == to_string(itemsInStock + 1)){
+						break;
+					}
+					else if (userInput == "continue"){
+						continue;
+					}
+					else{
+						cout << endl << "Invalid response." << endl;
+					}
+				}
+				break;
+			}
+			else if (userInput == "view current equipment" || userInput == "2"){
+				cout << endl << "Helmet: " << equippedHelmet << endl;
+				for (i = 0; i < 7; i++){
+					if (helmetBonus[i] == 0){
+						continue;
+					}
+					cout << statNames[i] << ": " << helmetBonus[i] << endl;
+				}
+				getch();
+				cout << endl << "Chestplate: " << equippedChestplate << endl;
+				for (i = 0; i < 7; i++){
+					if (chestplateBonus[i] == 0){
+						continue;
+					}
+					cout << statNames[i] << ": " << chestplateBonus[i] << endl;
+				}
+				getch();
+				cout << endl << "Leggings: " << equippedLeggings << endl;
+				for (i = 0; i < 7; i++){
+					if (leggingsBonus[i] == 0){
+						continue;
+					}
+					cout << statNames[i] << ": " << leggingsBonus[i] << endl;
+				}
+				getch();
+				cout << endl << "Boots: " << equippedBoots << endl;
+				for (i = 0; i < 7; i++){
+					if (bootsBonus[i] == 0){
+						continue;
+					}
+					cout << statNames[i] << ": " << bootsBonus[i] << endl;
+				}
+				getch();
+				cout << endl << "Weapon: " << equippedWeapon << endl;
+				for (i = 0; i < 7; i++){
+					if (weaponBonus[i] == 0){
+						continue;
+					}
+					cout << statNames[i] << ": " << weaponBonus[i] << endl;
+				}
+				getch();
+				break;
+			}
+			else if (userInput == "view stats" || userInput == "3"){
+				viewStats(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, wellBonus, playerCurrentHealth, playerCurrentMana, playerExperience, goldAmount);
+				getch();
+				break;
+			}
+			else if (userInput == "leave" || userInput == "4"){
+				cout << endl << "You leave the armory." << endl;
+				return;
+			}
+			else{
+				cout << endl << "Invalid selection." << endl;
+			}
+		}
+	}
+}
+
+void landmarkIsWell(int& tooManyEnemies, string userInput, int& playerLevel, int& playerExperienceToLevelUp, int playerStats[7], double fighterAttributes[7], int equipmentBonus[7], double wellBonus[7],
+	int helmetBonus[7], int chestplateBonus[7], int leggingsBonus[7], int bootsBonus[7], int weaponBonus[7], int& playerCurrentHealth, int& playerCurrentMana, int& goldAmount, int playerSquare,
+	int playerExperience, int wellLevel[7]){
+	tooManyEnemies = 0;
+	int wellRandomServiceCost = 1.4 * pow(1.1, playerSquare); // Boost 1 random stat.
+	int wellPreciseServiceCost = 2 * pow(1.1, playerSquare); // Boost 1 chosen stat.
+	string statNames[7]{"health", "mana", "attack", "defense", "magic attack", "magic defense", "speed"};
+	cout << endl << "You stop by a magical well. A mystical voice speaks." << endl
+		<< "\"If you donate gold into the well, I will grant you my powers.\"" << endl;
+	getch();
+	while (true){
+		cout << endl << "If you donate " << wellRandomServiceCost << " gold, you can boost a random stat." << endl
+			<< "If you donate " << wellPreciseServiceCost << " gold, you can boost a stat of your choice." << endl
+			<< "You have " << goldAmount << " gold. What would you like to do?" << endl
+			<< "[1: Boost Random Stat]" << endl
+			<< "[2: Boost Choice Stat]" << endl
+			<< "[3: View Stats]" << endl
+			<< "[4: Leave]" << endl;
+		while (true){
+			fullInput(userInput);
+			if (userInput == "boost random stat" || userInput == "1"){
+				if (goldAmount >= wellRandomServiceCost){
+					int i = rand() % 7;
+					int beforeChange[7]{playerStats[0], playerStats[1], playerStats[2], playerStats[3], playerStats[4], playerStats[5], playerStats[6]};
+					wellLevel[i]++;
+					wellBonus[i] = pow(1.15, wellLevel[i]);
+					statsChanged(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, equipmentBonus, wellBonus, helmetBonus, chestplateBonus, leggingsBonus, bootsBonus, weaponBonus);
+					cout << endl << "Your " << statNames[i] << " has increased by " << playerStats[i] - beforeChange[i] << "!" << endl;
+					goldAmount -= wellRandomServiceCost;
+					getch();
+					break;
+				}
+				else{
+					cout << endl << "You do not have enough gold." << endl;
+					getch();
+				}
+			}
+			else if (userInput == "boost choice stat" || userInput == "2"){
+				if (goldAmount >= wellPreciseServiceCost){
+					cout << endl << "Choose a stat to boost." << endl
+						<< "[1: Health]" << endl
+						<< "[2: Mana]" << endl
+						<< "[3: Attack]" << endl
+						<< "[4: Defense]" << endl
+						<< "[5: Magic Attack]" << endl
+						<< "[6: Magic Defense]" << endl
+						<< "[7: Speed]" << endl;
+					while (true){
+						int i;
+						int temp;
+						fullInput(userInput);
+						if (userInput == "health" || userInput == "1"){
+							i = 0;
+						}
+						else if (userInput == "mana" || userInput == "2"){
+							i = 1;
+						}
+						else if (userInput == "attack" || userInput == "3"){
+							i = 2;
+						}
+						else if (userInput == "defense" || userInput == "4"){
+							i = 3;
+						}
+						else if (userInput == "magic attack" || userInput == "5"){
+							i = 4;
+						}
+						else if (userInput == "magic defense" || userInput == "6"){
+							i = 5;
+						}
+						else if (userInput == "speed" || userInput == "7"){
+							i = 6;
+						}
+						else{
+							cout << endl << "Invalid selection." << endl;
+							continue;
+						}
+						temp = playerStats[i];
+						wellLevel[i]++;
+						wellBonus[i] = pow(1.25, wellLevel[i]);
+						statsChanged(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, equipmentBonus, wellBonus, helmetBonus, chestplateBonus, leggingsBonus, bootsBonus, weaponBonus);
+						cout << endl << "Your " << statNames[i] << " has increased by " << playerStats[i] - temp << "!" << endl;
+						goldAmount -= wellPreciseServiceCost;
+						getch();
+						break;
+					}
+					break;
+				}
+				else{
+					cout << endl << "You do not have enough gold." << endl;
+					getch();
+				}
+			}
+			else if (userInput == "view stats" || userInput == "3"){
+				viewStats(playerLevel, playerExperienceToLevelUp, playerStats, fighterAttributes, wellBonus, playerCurrentHealth, playerCurrentMana, playerExperience, goldAmount);
+				getch();
+				break;
+			}
+			else if (userInput == "leave" || userInput == "4"){
+				cout << endl << "You leave the well." << endl;
+				return;
+			}
+			else{
+				cout << endl << "Invalid selection." << endl;
+			}
+		}
+	}
+	return;
+}
+
+int main(){
+	srand(time(NULL));
+
+	while (true){ // Main Menu.
+		cout << endl << "Welcome to Endless Adventure v0.3! Select an option." << endl
+			<< "[1: Play]" << endl
+			<< "[2: Help]" << endl
+			<< "[3: Update Logs]" << endl
+			<< "[4: Credits]" << endl
+			<< "[5: Quit]" << endl;
+		string userInput; // This will be how the player selects their options.
+		while (true){
+			fullInput(userInput);
+			if (userInput == "play" || userInput == "1"){
+				startGame(userInput);
+				break;
+			}
+			else if (userInput == "help" || userInput == "2"){
+				helpDisplay(userInput);
+				break;
+			}
+			else if (userInput == "update logs" || userInput == "3"){
+				updateLog(userInput);
+				break;
+			}
+			else if (userInput == "credits" || userInput == "4"){
+				creditsDisplay();
+				break;
+			}
+			else if (userInput == "quit" || userInput == "5"){
+				system("PAUSE");
+				return 0;
+			}
+			else{
+				cout << endl << "Invalid selection." << endl;
+			}
+		}
+	}
+}
+
+void makeLower(string& userInput){ // Automatically makes the user's inputs in lower case.
+	for (int i = 0; i < userInput.length(); i++) {
+		userInput[i] = tolower(userInput[i]);
+	}
+}
+
+void fullInput(string& userInput){ // Used for when the user needs to input an action, this function should make it a bit more convenient.
+	cout << ">";
+	getline(cin, userInput);
+	makeLower(userInput);
+}
